@@ -1,4 +1,4 @@
-import React,{ useState, useEffect }from 'react';
+import React, { useState, useEffect } from 'react';
 import { fade, makeStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -27,7 +27,8 @@ import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import etiqueta from '../img/etiqueta.png'
-
+import { useMediaQuery } from 'react-responsive'
+import etiquetaMobile from '../img/etiquetaMobile.png'
 
 const useStyles = makeStyles(theme => ({
   grow: {
@@ -89,19 +90,18 @@ const useStyles = makeStyles(theme => ({
       display: 'none',
     },
   },
-   media: {
+  media: {
     height: 140,
   },
-   card: {
+  card: {
     maxWidth: 345,
   },
   tab: {
-  marginTop:theme.spacing(6),
-  flexGrow: 1
+    marginTop: theme.spacing(6),
   },
   paper: {
     marginTop: theme.spacing(6),
-    width:'100%'
+    width: '100%'
   },
   image: {
     width: 128,
@@ -113,10 +113,6 @@ const useStyles = makeStyles(theme => ({
     width: '90%',
     height: '90%',
   },
-  container: {
-    display: 'flex',
-    flexWrap: 'wrap',
-  },
   dense: {
     marginTop: 19,
   },
@@ -124,38 +120,42 @@ const useStyles = makeStyles(theme => ({
     width: 200,
   },
   button: {
-    margin: theme.spacing(1),
-    marginLeft: theme.spacing(68)
+    marginTop: theme.spacing(2),
+    float: 'right'
   },
   footer: {
-  marginTop: theme.spacing(6),
+    marginTop: theme.spacing(6),
   },
   formControl: {
     margin: theme.spacing(1),
-    minWidth: 300,
+    minWidth: 350,
     paddingTop: theme.spacing(1)
   },
 }));
 
 export default function PrimarySearchAppBar() {
   const classes = useStyles();
-  const [values, setValues] = useState( {name: '',lastname:'', email: '',phone:'', city:'', message:''});
+  const [values, setValues] = useState({ name: '', lastname: '', email: '', phone: '', city: '', message: '', gender: '' });
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
   const [value, setValue] = useState(0);
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-  const [data, setData] = useState([]);
+  const [data, setData] = useState({});
   const [hasError, setErrors] = useState(false);
+  const isDesktopOrLaptop = useMediaQuery({
+    query: '(min-device-width: 1224px)'
+  })
+  const isTabletOrMobileDevice = useMediaQuery({
+    query: '(max-device-width: 1224px)'
+  })
 
-
- 
   useEffect(() => {
     async function fetchData() {
-      const res = await fetch("https://localhost:3001/api/product");
+      const res = await fetch("http://localhost:3001/api/product");
       res
         .json()
-        .then(res => console.log(res))
+        .then(res => setData(res))
         .catch(err => setErrors(err));
     }
 
@@ -179,7 +179,7 @@ export default function PrimarySearchAppBar() {
     setMobileMoreAnchorEl(event.currentTarget);
   }
 
-   const handleChange = name => event => {
+  const handleChange = name => event => {
     setValues({ ...values, [name]: event.target.value });
   };
 
@@ -187,17 +187,18 @@ export default function PrimarySearchAppBar() {
     setValue(newValue);
   }
 
-  function sendMessage(){
- //   let data = {
- //   email: values.email,
- //   name: values.name,
- //   lastname:values.lastname,
- //   phone: values.phone,
- //   city: values.city,
- //   message: values.message
+  function sendMessage() {
+    //   let data = {
+    //   email: values.email,
+    //   name: values.name,
+    //   lastname:values.lastname,
+    //   phone: values.phone,
+    //   city: values.city,
+    //   message: values.message
 
- // }
-    console.log(data)
+    // }
+    console.log(isTabletOrMobileDevice)
+    console.log('test' + hasError)
   }
 
   const menuId = 'primary-search-account-menu';
@@ -259,81 +260,82 @@ export default function PrimarySearchAppBar() {
 
   return (
     <div >
-        <Toolbar>
+      {isDesktopOrLaptop &&  <div>
+      <Toolbar>
         <img src={etiqueta} width="40px" height="120px"></img>
-          <div className={classes.search}>
-          <SearchIcon className= { classes.searchIcon} />
+        <div className={classes.search}>
+          <SearchIcon className={classes.searchIcon} />
           <TextField
-            id="standard-name"  
-            placeholder="¿ Qué estás buscando ?"         
+            id="standard-name"
+            placeholder="¿ Qué estás buscando ?"
             value={data.name}
             onChange={handleChange('name')}
             margin="normal"
             style={{
-              width:'200px'
+              width: '200px'
             }}
           />
-          </div>   
-        <div style={{marginLeft:'10%', justifyContent:'center'}}> <img src={logo} width="20%" height="20%" /></div>
-          <div className={classes.grow} />
-          <div className={classes.sectionDesktop}>
-            <IconButton aria-label="show 4 new mails" color="inherit">
-              <Badge badgeContent={0} color="primary">
-                <FavoriteIcon />  
-                  <Typography variant="caption" display="block" gutterBottom>
-                    Tienda
-                  </Typography>           
-              </Badge>
-            </IconButton>
-            <IconButton aria-label="show 17 new notifications" color="inherit">
-              <Badge badgeContent={0} color="secondary">
-                <LocationIcon />
-                <Typography variant="caption" display="block" gutterBottom>
-                    Lista de deseos
-                </Typography>  
-              </Badge>
-            </IconButton>
-            <IconButton aria-label="show 4 new mails" color="inherit">
-              <Badge badgeContent={0} color="primary">
-                <BagIcon />
-                <Typography variant="caption" display="block" gutterBottom>
-                    Mi bolsa
-                </Typography>  
-              </Badge>
-            </IconButton>
-            <IconButton
-              edge="end"
-              aria-label="account of current user"
-              aria-controls={menuId}
-              aria-haspopup="true"
-              onClick={handleProfileMenuOpen}
-              color="inherit"
-            >
-              <AccountCircle />
-            </IconButton>
-        
-          </div>
-       
-          <div className={classes.sectionMobile}>
-            <IconButton
-              aria-label="show more"
-              aria-controls={mobileMenuId}
-              aria-haspopup="true"
-              onClick={handleMobileMenuOpen}
-              color="inherit"
-            >
-              <MoreIcon />
-            </IconButton>
-          </div>
-        </Toolbar>
-        <Paper className={classes.tab}>
-          <Tabs
-            value={value}
-            onChange={handleChangeTab}
-            // indicatorColor="primary"
-            textColor="primary"
-            centered
+        </div>
+        <div style={{ marginLeft: '10%', justifyContent: 'center' }}> <img src={logo} width="20%" height="20%" /></div>
+        <div className={classes.grow} />
+        <div className={classes.sectionDesktop}>
+          <IconButton aria-label="show 4 new mails" color="inherit">
+            <Badge badgeContent={0} color="primary">
+              <FavoriteIcon />
+              <Typography variant="caption" display="block" gutterBottom>
+                Tienda
+                  </Typography>
+            </Badge>
+          </IconButton>
+          <IconButton aria-label="show 17 new notifications" color="inherit">
+            <Badge badgeContent={0} color="secondary">
+              <LocationIcon />
+              <Typography variant="caption" display="block" gutterBottom>
+                Lista de deseos
+                </Typography>
+            </Badge>
+          </IconButton>
+          <IconButton aria-label="show 4 new mails" color="inherit">
+            <Badge badgeContent={0} color="primary">
+              <BagIcon />
+              <Typography variant="caption" display="block" gutterBottom>
+                Mi bolsa
+                </Typography>
+            </Badge>
+          </IconButton>
+          <IconButton
+            edge="end"
+            aria-label="account of current user"
+            aria-controls={menuId}
+            aria-haspopup="true"
+            onClick={handleProfileMenuOpen}
+            color="inherit"
           >
+            <AccountCircle />
+          </IconButton>
+
+        </div>
+
+        <div className={classes.sectionMobile}>
+          <IconButton
+            aria-label="show more"
+            aria-controls={mobileMenuId}
+            aria-haspopup="true"
+            onClick={handleMobileMenuOpen}
+            color="inherit"
+          >
+            <MoreIcon />
+          </IconButton>
+        </div>
+      </Toolbar>
+      <Paper className={classes.tab}>
+        <Tabs
+          value={value}
+          onChange={handleChangeTab}
+          // indicatorColor="primary"
+          textColor="primary"
+          centered
+        >
           <Tab label="JEANS" />
           <Tab label="DENIM" />
           <Tab label="ROPA" />
@@ -345,101 +347,170 @@ export default function PrimarySearchAppBar() {
       </Paper>
       <div className={classes.tab}></div>
 
-      <Divider variant="middle"/>
-      
+      <Divider variant="middle" />
+
       <Paper className={classes.paper}>
-        <Grid container>
-          <Grid  item lg={6}>
-           <form className={classes.container} noValidate autoComplete="off">
-              <Typography variant="h6"
-               gutterBottom
-               color="primary"
-               style={{
-                  margin:'15px'
-                }}
-               >
-                LOREM IPSUM DOLOR SIT
+        <Grid container alignContent="center">
+          <Grid item md={6}>
+            <Typography variant="h5"
+              gutterBottom
+              color="primary"
+            >
+              LOREM IPSUM DOLOR SIT
               </Typography>
-              <TextField
-                name="email"
-                label="Email"
-                value={values.email}
-                onChange={handleChange('email')}
-                margin="normal"
-                style={{
-                  width:'600px',
-                  margin:'15px'
-                }}
-              />
+            <form >
               <FormControl className={classes.formControl}>
-              <TextField
-                name="name"
-                label="name"
-                value={values.name}
-                onChange={handleChange('name')}
-                margin="normal"
-              />
-            </FormControl>
-            <FormControl className={classes.formControl}>
-              <TextField
-                name="lastname"
-                label="lastname"
-                value={values.lastname}
-                onChange={handleChange('lastname')}
-                margin="normal"
-              />
-            </FormControl>
-            <FormControl className={classes.formControl}>
-              <TextField
-                name="phone"
-                label="Phone"
-                value={values.phone}
-                onChange={handleChange('phone')}
-              />
-            </FormControl>
+                <TextField
+                  name="email"
+                  label="Email"
+                  value={values.email}
+                  onChange={handleChange('email')}
+                  margin="normal"
+                />
+              </FormControl>
               <FormControl className={classes.formControl}>
-              <InputLabel htmlFor="age-simple">City</InputLabel>
-              <Select
-                placeholder="city"
-                value={values.city}
-                onChange={handleChange('city')}
-                label="city"
-                margin="none"
-              >
-                <MenuItem value={1}>Bogotá</MenuItem>
-                <MenuItem value={2}>Medellín</MenuItem>
-                <MenuItem value={3}>Cali</MenuItem>
-              </Select>
+                <TextField
+                  name="name"
+                  label="name"
+                  value={values.name}
+                  onChange={handleChange('name')}
+                  margin="normal"
+                />
+              </FormControl>
+              <FormControl className={classes.formControl}>
+                <TextField
+                  name="lastname"
+                  label="lastname"
+                  value={values.lastname}
+                  onChange={handleChange('lastname')}
+                  margin="normal"
+                />
+              </FormControl>
+              <FormControl className={classes.formControl}>
+                <TextField
+                  name="phone"
+                  label="Phone"
+                  value={values.phone}
+                  onChange={handleChange('phone')}
+                  margin="normal"
+                />
+              </FormControl>
+              <FormControl className={classes.formControl}>
+                <InputLabel htmlFor="age-simple">Gender</InputLabel>
+                <Select
+                  placeholder="gender"
+                  value={values.gender}
+                  onChange={handleChange('gender')}
+                  label="gender"
+                  margin="none"
+                >
+                  <MenuItem value={1}>Male</MenuItem>
+                  <MenuItem value={2}>Female</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl className={classes.formControl}>
+                <InputLabel htmlFor="age-simple">City</InputLabel>
+                <Select
+                  placeholder="city"
+                  value={values.city}
+                  onChange={handleChange('city')}
+                  label="city"
+                  margin="none"
+                >
+                  <MenuItem value={1}>Bogotá</MenuItem>
+                  <MenuItem value={2}>Medellín</MenuItem>
+                  <MenuItem value={3}>Cali</MenuItem>
+                </Select>
               </FormControl>
               <TextareaAutosize
                 name="message"
                 value={values.message}
                 onChange={handleChange('message')}
-                aria-label="minimum height"
-                rows={3} 
+                rows={3}
                 placeholder="message"
                 style={{
-                width:'85%',
-                marginLeft:'5px',
-                marginTop:'15px'
+                  width: '89%',
+                  marginTop: '15px',
+                  marginLeft: '5px'
                 }}
               />
-            <Button variant="contained" color="primary" className={classes.button} onClick={sendMessage}>
-              Send
-            </Button>
             </form>
+            <Button variant="contained" color="primary" className={classes.button} onClick={sendMessage}>
+                Enviar
+            </Button>
           </Grid>
-          <Grid item lg={6}>
-              <img className={classes.img} alt="complex" src={photo} />
+          <Grid item md={6}>
+            <img className={classes.img} alt="complex" src={photo} />
           </Grid>
         </Grid>
-        <div className={classes.footer}> <img src={footer} width="100%"/> </div>
-    </Paper>
-     
+        <div className={classes.footer}> <img src={footer} width="100%" /> </div>
+      </Paper>
+
 
       {renderMobileMenu}
       {renderMenu}
-     
-  </div>
+      </div>}
+      {/********** view mobile **********/}
+      {isTabletOrMobileDevice && <div>
+        <img src={etiquetaMobile} width="100%" height="10%"></img>
+        <Toolbar>
+
+        <div className={classes.search}>
+          <SearchIcon  />
+        </div>
+        <div style={{ marginLeft: '10%', justifyContent: 'center' }}> <img src={logo} width="20%" height="20%" /></div>
+        <div className={classes.grow} />
+        <div className={classes.sectionDesktop}>
+          <IconButton aria-label="show 4 new mails" color="inherit">
+            <Badge badgeContent={0} color="primary">
+              <FavoriteIcon />
+              <Typography variant="caption" display="block" gutterBottom>
+                Tienda
+                  </Typography>
+            </Badge>
+          </IconButton>
+          <IconButton aria-label="show 17 new notifications" color="inherit">
+            <Badge badgeContent={0} color="secondary">
+              <LocationIcon />
+              <Typography variant="caption" display="block" gutterBottom>
+                Lista de deseos
+                </Typography>
+            </Badge>
+          </IconButton>
+          <IconButton aria-label="show 4 new mails" color="inherit">
+            <Badge badgeContent={0} color="primary">
+              <BagIcon />
+              <Typography variant="caption" display="block" gutterBottom>
+                Mi bolsa
+                </Typography>
+            </Badge>
+          </IconButton>
+          <IconButton
+            edge="end"
+            aria-label="account of current user"
+            aria-controls={menuId}
+            aria-haspopup="true"
+            onClick={handleProfileMenuOpen}
+            color="inherit"
+          >
+            <AccountCircle />
+          </IconButton>
+
+        </div>
+
+        <div className={classes.sectionMobile}>
+          <IconButton
+            aria-label="show more"
+            aria-controls={mobileMenuId}
+            aria-haspopup="true"
+            onClick={handleMobileMenuOpen}
+            color="inherit"
+          >
+            <MoreIcon />
+          </IconButton>
+        </div>
+      </Toolbar>
+        </div>}
+    </div>
   );
 }
