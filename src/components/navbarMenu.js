@@ -29,6 +29,8 @@ import FormControl from '@material-ui/core/FormControl';
 import etiqueta from '../img/etiqueta.png'
 import { useMediaQuery } from 'react-responsive'
 import etiquetaMobile from '../img/etiquetaMobile.png'
+import footerMobile from '../img/footerMobile.png'
+
 
 const useStyles = makeStyles(theme => ({
   grow: {
@@ -123,13 +125,24 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(2),
     float: 'right'
   },
+  buttonMobile: {
+    marginTop: theme.spacing(2),
+    margingLeft: theme.spacing(10)
+  },
   footer: {
     marginTop: theme.spacing(6),
+  },
+  footerMobile: {
+    marginTop: theme.spacing(10),
   },
   formControl: {
     margin: theme.spacing(1),
     minWidth: 350,
     paddingTop: theme.spacing(1)
+  },
+  buttonMobile: {
+    margin: theme.spacing(1),
+   
   },
 }));
 
@@ -144,11 +157,12 @@ export default function PrimarySearchAppBar() {
   const [data, setData] = useState({});
   const [hasError, setErrors] = useState(false);
   const isDesktopOrLaptop = useMediaQuery({
-    query: '(min-device-width: 1224px)'
+    query: '(min-width: 700px)'
   })
   const isTabletOrMobileDevice = useMediaQuery({
     query: '(max-device-width: 1224px)'
   })
+  const isTabletOrMobile = useMediaQuery({ query: '(max-width: 700px)' })
 
   useEffect(() => {
     async function fetchData() {
@@ -197,8 +211,8 @@ export default function PrimarySearchAppBar() {
     //   message: values.message
 
     // }
-    console.log(isTabletOrMobileDevice)
-    console.log('test' + hasError)
+    console.log('phone' + isDesktopOrLaptop)
+    console.log('tablet' + isTabletOrMobile)
   }
 
   const menuId = 'primary-search-account-menu';
@@ -244,6 +258,14 @@ export default function PrimarySearchAppBar() {
         </IconButton>
         <p>Listas de deseos</p>
       </MenuItem>
+      <MenuItem>
+       <IconButton aria-label="show 4 new mails" color="inherit">
+            <Badge badgeContent={0} color="primary">
+              <BagIcon />
+            </Badge>
+          </IconButton>
+           <p>Mi bolsa</p>
+        </MenuItem>
       <MenuItem onClick={handleProfileMenuOpen}>
         <IconButton
           aria-label="account of current user"
@@ -260,7 +282,8 @@ export default function PrimarySearchAppBar() {
 
   return (
     <div >
-      {isDesktopOrLaptop &&  <div>
+      { (isDesktopOrLaptop) ? (
+        <div>
       <Toolbar>
         <img src={etiqueta} width="40px" height="120px"></img>
         <div className={classes.search}>
@@ -446,58 +469,20 @@ export default function PrimarySearchAppBar() {
         <div className={classes.footer}> <img src={footer} width="100%" /> </div>
       </Paper>
 
-
       {renderMobileMenu}
       {renderMenu}
-      </div>}
-      {/********** view mobile **********/}
-      {isTabletOrMobileDevice && <div>
+      </div>
+        ) : (
+      <div>
         <img src={etiquetaMobile} width="100%" height="10%"></img>
         <Toolbar>
-
-        <div className={classes.search}>
+        <div >
+           <IconButton aria-label="show 4 new mails" color="inherit">
           <SearchIcon  />
+        </IconButton>
         </div>
-        <div style={{ marginLeft: '10%', justifyContent: 'center' }}> <img src={logo} width="20%" height="20%" /></div>
+        <div style={{ justifyContent: 'center' }}> <img src={logo} width="30%" height="30%" /></div>
         <div className={classes.grow} />
-        <div className={classes.sectionDesktop}>
-          <IconButton aria-label="show 4 new mails" color="inherit">
-            <Badge badgeContent={0} color="primary">
-              <FavoriteIcon />
-              <Typography variant="caption" display="block" gutterBottom>
-                Tienda
-                  </Typography>
-            </Badge>
-          </IconButton>
-          <IconButton aria-label="show 17 new notifications" color="inherit">
-            <Badge badgeContent={0} color="secondary">
-              <LocationIcon />
-              <Typography variant="caption" display="block" gutterBottom>
-                Lista de deseos
-                </Typography>
-            </Badge>
-          </IconButton>
-          <IconButton aria-label="show 4 new mails" color="inherit">
-            <Badge badgeContent={0} color="primary">
-              <BagIcon />
-              <Typography variant="caption" display="block" gutterBottom>
-                Mi bolsa
-                </Typography>
-            </Badge>
-          </IconButton>
-          <IconButton
-            edge="end"
-            aria-label="account of current user"
-            aria-controls={menuId}
-            aria-haspopup="true"
-            onClick={handleProfileMenuOpen}
-            color="inherit"
-          >
-            <AccountCircle />
-          </IconButton>
-
-        </div>
-
         <div className={classes.sectionMobile}>
           <IconButton
             aria-label="show more"
@@ -510,7 +495,98 @@ export default function PrimarySearchAppBar() {
           </IconButton>
         </div>
       </Toolbar>
-        </div>}
+      <Paper className={classes.paper}>
+         <Typography variant="h5"
+              gutterBottom
+              color="primary"
+            >
+              LOREM IPSUM DOLOR SIT
+              </Typography>
+            <form >
+              <FormControl className={classes.formControl}>
+                <TextField
+                  name="email"
+                  label="Email"
+                  value={values.email}
+                  onChange={handleChange('email')}
+                  margin="normal"
+                />
+              </FormControl>
+              <FormControl className={classes.formControl}>
+                <TextField
+                  name="name"
+                  label="name"
+                  value={values.name}
+                  onChange={handleChange('name')}
+                  margin="normal"
+                />
+              </FormControl>
+              <FormControl className={classes.formControl}>
+                <TextField
+                  name="lastname"
+                  label="lastname"
+                  value={values.lastname}
+                  onChange={handleChange('lastname')}
+                  margin="normal"
+                />
+              </FormControl>
+              <FormControl className={classes.formControl}>
+                <TextField
+                  name="phone"
+                  label="Phone"
+                  value={values.phone}
+                  onChange={handleChange('phone')}
+                  margin="normal"
+                />
+              </FormControl>
+              <FormControl className={classes.formControl}>
+                <InputLabel htmlFor="age-simple">Gender</InputLabel>
+                <Select
+                  placeholder="gender"
+                  value={values.gender}
+                  onChange={handleChange('gender')}
+                  label="gender"
+                  margin="none"
+                >
+                  <MenuItem value={1}>Male</MenuItem>
+                  <MenuItem value={2}>Female</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl className={classes.formControl}>
+                <InputLabel htmlFor="age-simple">City</InputLabel>
+                <Select
+                  placeholder="city"
+                  value={values.city}
+                  onChange={handleChange('city')}
+                  label="city"
+                  margin="none"
+                >
+                  <MenuItem value={1}>Bogotá</MenuItem>
+                  <MenuItem value={2}>Medellín</MenuItem>
+                  <MenuItem value={3}>Cali</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl className={classes.formControl}>
+              <TextareaAutosize
+                name="message"
+                value={values.message}
+                onChange={handleChange('message')}
+                rows={3}
+                placeholder="message"
+              />
+            </FormControl>
+         <br></br>
+              <Button variant="contained" color="primary" className={classes.buttonMobile} onClick={sendMessage}>
+                Enviar
+            </Button>
+            </form>
+ <div className={classes.footerMobile}> <img src={footerMobile} width="100%" /> </div>
+      </Paper>
+      {renderMobileMenu}
+            {renderMenu}
+      </div>
+        )  }
+
     </div>
   );
 }
