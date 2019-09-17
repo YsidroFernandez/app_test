@@ -30,6 +30,10 @@ import etiqueta from '../img/etiqueta.png'
 import { useMediaQuery } from 'react-responsive'
 import etiquetaMobile from '../img/etiquetaMobile.png'
 import footerMobile from '../img/footerMobile.png'
+import Box from '@material-ui/core/Box';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
 
 
 const useStyles = makeStyles(theme => ({
@@ -140,9 +144,10 @@ const useStyles = makeStyles(theme => ({
     minWidth: 350,
     paddingTop: theme.spacing(1)
   },
-  buttonMobile: {
-    margin: theme.spacing(1),
-   
+  root: {
+    width: '100%',
+    maxWidth: 360,
+    backgroundColor: theme.palette.background.paper,
   },
 }));
 
@@ -154,7 +159,7 @@ export default function PrimarySearchAppBar() {
   const [value, setValue] = useState(0);
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-  const [data, setData] = useState({});
+  const [data, setData] = useState([]);
   const [hasError, setErrors] = useState(false);
   const isDesktopOrLaptop = useMediaQuery({
     query: '(min-width: 700px)'
@@ -163,18 +168,21 @@ export default function PrimarySearchAppBar() {
     query: '(max-device-width: 1224px)'
   })
   const isTabletOrMobile = useMediaQuery({ query: '(max-width: 700px)' })
+  const [selectedIndex, setSelectedIndex] = React.useState(1);
+
 
   useEffect(() => {
     async function fetchData() {
       const res = await fetch("http://localhost:3001/api/product");
       res
         .json()
-        .then(res => setData(res))
+        .then(res => setData(res.products))
         .catch(err => setErrors(err));
     }
 
     fetchData();
   });
+
 
   function handleProfileMenuOpen(event) {
     setAnchorEl(event.currentTarget);
@@ -202,17 +210,39 @@ export default function PrimarySearchAppBar() {
   }
 
   function sendMessage() {
-    //   let data = {
-    //   email: values.email,
-    //   name: values.name,
-    //   lastname:values.lastname,
-    //   phone: values.phone,
-    //   city: values.city,
-    //   message: values.message
+    console.log(data)
+    
+  }
 
-    // }
-    console.log('phone' + isDesktopOrLaptop)
-    console.log('tablet' + isTabletOrMobile)
+  function TabPanel(props) {
+    const { children, value, index, ...other } = props;
+
+    return (
+      <Typography
+        component="div"
+        role="tabpanel"
+        hidden={value !== index}
+        id={`simple-tabpanel-${index}`}
+        aria-labelledby={`simple-tab-${index}`}
+        {...other}
+      >
+        <Box p={3}>{children}</Box>
+      </Typography>
+    );
+  }
+
+
+  function handleClickListItem(event) {
+    setAnchorEl(event.currentTarget);
+  }
+
+  function handleMenuItemClick(event, index) {
+    setSelectedIndex(index);
+    setAnchorEl(null);
+  }
+
+  function handleClose() {
+    setAnchorEl(null);
   }
 
   const menuId = 'primary-search-account-menu';
@@ -280,6 +310,41 @@ export default function PrimarySearchAppBar() {
     </Menu>
   );
 
+
+const submenu = (
+   <div className={classes.root}>
+        <List component="nav" aria-label="Device settings">
+          <ListItem
+            button
+            aria-haspopup="true"
+            aria-controls="lock-menu"
+            aria-label="when device is locked"
+            onClick={handleClickListItem}
+          >
+            <ListItemText primary="When device is locked" />
+          </ListItem>
+        </List>
+        <Menu
+          id="lock-menu"
+          anchorEl={anchorEl}
+          keepMounted
+          open={Boolean(anchorEl)}
+          onClose={handleClose}
+        >
+        {data.map((option, index) => (
+            <MenuItem
+              key={option}
+              disabled={index === 0}
+              selected={index === selectedIndex}
+              onClick={event => handleMenuItemClick(event, index)}
+            >
+              {option.type}
+            </MenuItem>
+        ))}
+        </Menu>
+      </div>
+);
+
   return (
     <div >
       { (isDesktopOrLaptop) ? (
@@ -291,7 +356,7 @@ export default function PrimarySearchAppBar() {
           <TextField
             id="standard-name"
             placeholder="¿ Qué estás buscando ?"
-            value={data.name}
+            value=""
             onChange={handleChange('name')}
             margin="normal"
             style={{
@@ -352,22 +417,42 @@ export default function PrimarySearchAppBar() {
         </div>
       </Toolbar>
       <Paper className={classes.tab}>
-        <Tabs
-          value={value}
-          onChange={handleChangeTab}
-          // indicatorColor="primary"
-          textColor="primary"
-          centered
-        >
-          <Tab label="JEANS" />
-          <Tab label="DENIM" />
-          <Tab label="ROPA" />
-          <Tab label="ACCESORIOS" />
-          <Tab label="BÁSICOS INFALTABLES" />
-          <Tab label="NOVEDADES" />
-          <Tab label="REBAJAS" />
-        </Tabs>
+         <Tabs
+            value={value}
+            onChange={handleChangeTab}
+            // indicatorColor="primary"
+            textColor="primary"
+            centered
+          >
+            {data.map((item, index) => 
+          (
+            <Tab label={item.type} />
+          )
+        )}
+      </Tabs>
       </Paper>
+      
+      <TabPanel value={value} index={0}>
+    {submenu} 
+      </TabPanel>
+      <TabPanel value={value} index={1}>
+        Item Two
+      </TabPanel>
+      <TabPanel value={value} index={2}>
+        Item Three
+      </TabPanel>
+      <TabPanel value={value} index={3}>
+        Item Three
+      </TabPanel>
+      <TabPanel value={value} index={4}>
+       Not Data Básicos Infantibles
+      </TabPanel>
+      <TabPanel value={value} index={5}>
+        Not Data Novedades
+      </TabPanel>
+      <TabPanel value={value} index={6}>
+        Not Data Rabajas
+      </TabPanel>
       <div className={classes.tab}></div>
 
       <Divider variant="middle" />
