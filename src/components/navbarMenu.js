@@ -31,9 +31,9 @@ import { useMediaQuery } from 'react-responsive'
 import etiquetaMobile from '../img/etiquetaMobile.png'
 import footerMobile from '../img/footerMobile.png'
 import Box from '@material-ui/core/Box';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
+import MenuList from '@material-ui/core/MenuList';
+import MySnackbarContentWrapper from './toastComponent';
+import Snackbar from '@material-ui/core/Snackbar';
 
 
 const useStyles = makeStyles(theme => ({
@@ -109,6 +109,9 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(6),
     width: '100%'
   },
+  paperSubmenu: {
+    margin: theme.spacing(2)
+  },
   image: {
     width: 128,
     height: 128,
@@ -149,6 +152,9 @@ const useStyles = makeStyles(theme => ({
     maxWidth: 360,
     backgroundColor: theme.palette.background.paper,
   },
+  margin: {
+    margin: theme.spacing(1),
+  },
 }));
 
 export default function PrimarySearchAppBar() {
@@ -169,19 +175,17 @@ export default function PrimarySearchAppBar() {
   })
   const isTabletOrMobile = useMediaQuery({ query: '(max-width: 700px)' })
   const [selectedIndex, setSelectedIndex] = React.useState(1);
+  const [open, setOpen] = React.useState(false);
+
 
 
   useEffect(() => {
-    async function fetchData() {
-      const res = await fetch("http://localhost:3001/api/product");
-      res
-        .json()
-        .then(res => setData(res.products))
-        .catch(err => setErrors(err));
-    }
-
-    fetchData();
-  });
+  
+  fetch("http://localhost:3001/api/product")
+    .then(resp => resp.json())
+    .then(res => setData(res.products))
+    .catch(err => setErrors(err));
+    },[]);
 
 
   function handleProfileMenuOpen(event) {
@@ -209,10 +213,48 @@ export default function PrimarySearchAppBar() {
     setValue(newValue);
   }
 
-  function sendMessage() {
-    console.log(data)
-    
+  function handleCloseSnackbar(event, reason) {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpen(false);
   }
+
+  function sendMessage() {
+
+       var url = 'http://localhost:3001/api/product/contact';
+        var data = {
+          email: values.email,
+          name : values.name,
+          lastname: values.lastname,
+          phone : values.phone,
+          gender : values.gender,
+          city : values.city,
+          message : values.message
+        };
+
+      fetch(url, {
+        method: 'POST', // or 'PUT'
+        body: JSON.stringify(data), // data can be `string` or {object}!
+        headers:{
+          'Content-Type': 'application/json'
+        }
+      }).then(res => res.json())
+        .catch(error => console.error('Error:', error))
+        .then(response => {
+          console.log('Success:', response.status)
+          if(response.status === "Ok") {
+           setOpen(true);
+          }else {
+            console.log('falló')
+          }
+       });
+  
+  setValues({ name: '', lastname: '', email: '', phone: '', city: '', message: '', gender: '' })
+  }
+
+
 
   function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -229,20 +271,6 @@ export default function PrimarySearchAppBar() {
         <Box p={3}>{children}</Box>
       </Typography>
     );
-  }
-
-
-  function handleClickListItem(event) {
-    setAnchorEl(event.currentTarget);
-  }
-
-  function handleMenuItemClick(event, index) {
-    setSelectedIndex(index);
-    setAnchorEl(null);
-  }
-
-  function handleClose() {
-    setAnchorEl(null);
   }
 
   const menuId = 'primary-search-account-menu';
@@ -310,40 +338,6 @@ export default function PrimarySearchAppBar() {
     </Menu>
   );
 
-
-const submenu = (
-   <div className={classes.root}>
-        <List component="nav" aria-label="Device settings">
-          <ListItem
-            button
-            aria-haspopup="true"
-            aria-controls="lock-menu"
-            aria-label="when device is locked"
-            onClick={handleClickListItem}
-          >
-            <ListItemText primary="When device is locked" />
-          </ListItem>
-        </List>
-        <Menu
-          id="lock-menu"
-          anchorEl={anchorEl}
-          keepMounted
-          open={Boolean(anchorEl)}
-          onClose={handleClose}
-        >
-        {data.map((option, index) => (
-            <MenuItem
-              key={option}
-              disabled={index === 0}
-              selected={index === selectedIndex}
-              onClick={event => handleMenuItemClick(event, index)}
-            >
-              {option.type}
-            </MenuItem>
-        ))}
-        </Menu>
-      </div>
-);
 
   return (
     <div >
@@ -432,28 +426,19 @@ const submenu = (
       </Tabs>
       </Paper>
       
-      <TabPanel value={value} index={0}>
-    {submenu} 
-      </TabPanel>
-      <TabPanel value={value} index={1}>
-        Item Two
-      </TabPanel>
-      <TabPanel value={value} index={2}>
-        Item Three
-      </TabPanel>
-      <TabPanel value={value} index={3}>
-        Item Three
-      </TabPanel>
-      <TabPanel value={value} index={4}>
-       Not Data Básicos Infantibles
-      </TabPanel>
-      <TabPanel value={value} index={5}>
-        Not Data Novedades
-      </TabPanel>
-      <TabPanel value={value} index={6}>
-        Not Data Rabajas
-      </TabPanel>
-      <div className={classes.tab}></div>
+      
+       { data.map((item,index) => (
+        <TabPanel value={value} index={index}>
+           <Paper className={classes.paperSubmenu}>
+          {item.models.map((value,pos) => (
+            <MenuList>
+              <MenuItem>{value.type}</MenuItem>
+            </MenuList>
+          ))}
+        </Paper>
+        </TabPanel>
+        ))}
+        
 
       <Divider variant="middle" />
 
@@ -469,6 +454,7 @@ const submenu = (
             <form >
               <FormControl className={classes.formControl}>
                 <TextField
+                  required
                   name="email"
                   label="Email"
                   value={values.email}
@@ -478,6 +464,7 @@ const submenu = (
               </FormControl>
               <FormControl className={classes.formControl}>
                 <TextField
+                  required  
                   name="name"
                   label="name"
                   value={values.name}
@@ -487,6 +474,7 @@ const submenu = (
               </FormControl>
               <FormControl className={classes.formControl}>
                 <TextField
+                  required
                   name="lastname"
                   label="lastname"
                   value={values.lastname}
@@ -496,6 +484,7 @@ const submenu = (
               </FormControl>
               <FormControl className={classes.formControl}>
                 <TextField
+                  required
                   name="phone"
                   label="Phone"
                   value={values.phone}
@@ -506,6 +495,7 @@ const submenu = (
               <FormControl className={classes.formControl}>
                 <InputLabel htmlFor="age-simple">Gender</InputLabel>
                 <Select
+                  required
                   placeholder="gender"
                   value={values.gender}
                   onChange={handleChange('gender')}
@@ -519,6 +509,7 @@ const submenu = (
               <FormControl className={classes.formControl}>
                 <InputLabel htmlFor="age-simple">City</InputLabel>
                 <Select
+                  required
                   placeholder="city"
                   value={values.city}
                   onChange={handleChange('city')}
@@ -531,6 +522,7 @@ const submenu = (
                 </Select>
               </FormControl>
               <TextareaAutosize
+                required
                 name="message"
                 value={values.message}
                 onChange={handleChange('message')}
@@ -553,7 +545,7 @@ const submenu = (
         </Grid>
         <div className={classes.footer}> <img src={footer} width="100%" /> </div>
       </Paper>
-
+       
       {renderMobileMenu}
       {renderMenu}
       </div>
@@ -590,6 +582,7 @@ const submenu = (
             <form >
               <FormControl className={classes.formControl}>
                 <TextField
+                  required
                   name="email"
                   label="Email"
                   value={values.email}
@@ -599,6 +592,7 @@ const submenu = (
               </FormControl>
               <FormControl className={classes.formControl}>
                 <TextField
+                  required
                   name="name"
                   label="name"
                   value={values.name}
@@ -608,6 +602,7 @@ const submenu = (
               </FormControl>
               <FormControl className={classes.formControl}>
                 <TextField
+                  required
                   name="lastname"
                   label="lastname"
                   value={values.lastname}
@@ -617,6 +612,7 @@ const submenu = (
               </FormControl>
               <FormControl className={classes.formControl}>
                 <TextField
+                  required
                   name="phone"
                   label="Phone"
                   value={values.phone}
@@ -627,6 +623,7 @@ const submenu = (
               <FormControl className={classes.formControl}>
                 <InputLabel htmlFor="age-simple">Gender</InputLabel>
                 <Select
+                  required
                   placeholder="gender"
                   value={values.gender}
                   onChange={handleChange('gender')}
@@ -640,6 +637,7 @@ const submenu = (
               <FormControl className={classes.formControl}>
                 <InputLabel htmlFor="age-simple">City</InputLabel>
                 <Select
+                  required
                   placeholder="city"
                   value={values.city}
                   onChange={handleChange('city')}
@@ -653,6 +651,7 @@ const submenu = (
               </FormControl>
               <FormControl className={classes.formControl}>
               <TextareaAutosize
+                required
                 name="message"
                 value={values.message}
                 onChange={handleChange('message')}
@@ -672,6 +671,25 @@ const submenu = (
       </div>
         )  }
 
+    {(open === true) ? (
+        <div>
+            <Snackbar
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'center',
+              }}
+              open={open}
+              autoHideDuration={6000}
+              onClose={handleCloseSnackbar}
+            >
+              <MySnackbarContentWrapper
+                onClose={handleCloseSnackbar}
+                variant="success"
+                message="Mensaje enviado correctamente!"
+              />      
+              </Snackbar>  
+          </div> 
+      ) : ''}
     </div>
   );
 }
